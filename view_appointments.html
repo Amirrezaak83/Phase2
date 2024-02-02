@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Appointments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .messages {
+            margin-top: 20px;
+        }
+        .messages li {
+            color: #e74c3c;
+        }
+    </style>    
+</head>
+<body>
+    <h1>Your Appointments</h1>
+    <ul>
+        {% for appointment in appointments %}
+            <li>
+                {{ appointment.datetime }} with {{ appointment.clinic_id }} - {{ appointment.status}}
+                <!-- اضافه کردن لینک لغو قرار ملاقات -->
+                <a href="{% url 'cancel_appointment' appointment.id %}">Cancel Appointment</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- بخش پیام‌ها -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>

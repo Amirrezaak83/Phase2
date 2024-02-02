@@ -1,0 +1,43 @@
+<style>
+    form {
+        background-color: #f2f2f2;
+        padding: 20px;
+        border-radius: 5px;
+        width: 300px;
+        margin: auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<form action="{% url 'cancel_appointment' %}" method="post">
+    {% csrf_token %}
+    <label for="appointment_id">Appointment ID:</label>
+    <input type="text" id="appointment_id" name="appointment_id" required>
+    <button type="submit">Cancel Appointment</button>
+</form>
