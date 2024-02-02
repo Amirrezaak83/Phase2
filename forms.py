@@ -1,13 +1,10 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UsernameField
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import *
 from django.core.exceptions import *
-from django.contrib.auth import authenticate
-
-
 
 class register_form(UserCreationForm): #user_creation_form have username and password by default
-
+    
     email = forms.EmailField()
     first_name = forms.CharField()
     last_name = forms.CharField()
@@ -30,24 +27,11 @@ class register_form(UserCreationForm): #user_creation_form have username and pas
 
 
 
-class LoginForm(forms.Form):
-    username = UsernameField(widget=forms.TextInput(attrs={'autofocus': True}))
-    password = forms.CharField(
-        label="Password",
-        widget=forms.PasswordInput(),
-    )
+class LoginForm(AuthenticationForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        username = cleaned_data.get('username')
-        password = cleaned_data.get('password')
-
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user is None:
-                raise forms.ValidationError("Invalid username or password.")
-
-        return cleaned_data
 
 
 class UpdateProfileForm(forms.ModelForm):
@@ -60,3 +44,25 @@ class UpdateProfileForm(forms.ModelForm):
         fields = ['new_username', 'new_password', 'confirm_password']
 
 
+
+class AddClinicForm(forms.ModelForm):
+    name = forms.CharField(max_length=255, required=True)
+    address = forms.CharField(widget=forms.Textarea, required=True)
+    phone_number = forms.CharField(max_length=20, required=True)
+    services = forms.CharField(widget=forms.Textarea, required=True)
+    availability = forms.BooleanField(required=True)
+
+    class Meta:
+        model = Clinics
+        fields = ['name', 'address', 'phone_number', 'services', 'availability']
+        exclude = ['clinic_id']
+
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointments
+        fields = ['appointment_id', 'clinic_id', 'user_id', 'datetime', 'status']
+
+
+class ClinicSearchForm(forms.Form):
+    query = forms.CharField(label='Search for clinics', max_length=100)
