@@ -55,6 +55,18 @@ def login_view(request):
 
 
 
+def your_dashboard(request):
+    user_type = request.CustomUser.user_type
+    if user_type == 'clinic':
+        add_clinic = reverse('addclinic')
+        return render(request, 'clinic_dashboard.html')
+    elif user_type == 'patient':
+        updateprofile = reverse('update_profile')
+        return render(request, 'patient_dashboard.html')
+
+
+
+
 
 
 
