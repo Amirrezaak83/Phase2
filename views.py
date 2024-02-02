@@ -148,3 +148,50 @@ def view_appointments(request):
 
 
 
+
+def add_clinic(request):
+    if request.method == 'POST':
+        form = AddClinicForm(request.POST)
+        if form.is_valid():
+            clinic = form.save()
+            messages.info(request, 'Your clinic has been created!')
+            return redirect('your_dashboard')
+        else:
+            messages.error(request, 'Invalid form submission.')
+            print(form.errors) #for debugging
+            return redirect('addclinic')
+    else:
+        form = AddClinicForm()
+    return render(request, 'add_clinic.html', {'form': form})
+
+
+def view_current_appointments(request):
+    appointments = Appointments.objects.filter(status="Scheduled").order_by('datetime')
+    return render(request, 'clinic/view_current_appointments.html', {'appointments': appointments})
+
+
+def cancel_appointment_by_clinic(request, appointment_id):
+    try:
+        appointment = Appointments.objects.get(pk=appointment_id)
+        appointment.delete()
+        message = "Appointment canceled successfully."
+    except Appointments.DoesNotExist:
+        message = "Appointment not found."
+    return render(request, 'clinic/cancel_appointment_by_clinic.html', {'message': message})
+
+
+def increase_appointment_capacity(request):
+    if request.method == 'POST':
+        clinic_id = request.POST.get('clinic_id')
+        additional_capacity = request.POST.get('additional_capacity')
+        clinic = Clinics.objects.get(pk=clinic_id)
+        clinic.capacity += int(additional_capacity)
+        clinic.save()
+        return redirect('view_current_appointments')
+    return render(request, 'clinic/increase_capacity.html')
+
+
+
+
+
+
