@@ -67,7 +67,36 @@ def your_dashboard(request):
 
 
 
+def update_profile(request):
+    if request.method == 'POST':
+        form = UpdateProfileForm(request.POST)
+        if form.is_valid():
+            new_username = form.cleaned_data['new_username']
+            new_password = form.cleaned_data['new_password']
+            confirm_password = form.cleaned_data['confirm_password']
 
+            user = request.user
+
+
+            if new_password != confirm_password:
+                raise ValidationError("Passwords are not the same")          
+             
+            if new_username:
+                user.username = new_username
+                
+            if new_password and new_password == confirm_password:
+                user.password = make_password(new_password)
+                
+            user.save()
+
+            messages.info(request, 'Profile updated successfully.')
+            return redirect('your_dashboard')
+        else:
+            messages.error(request, 'Invalid form submission.')
+    else:
+        form = UpdateProfileForm()
+
+    return render(request, 'update_profile.html', {'form': form})
 
 
 
