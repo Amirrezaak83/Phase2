@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.urls import reverse
 from .forms import *
+from .models import *
 from django.contrib.auth.hashers import make_password
+from django.http import HttpResponseRedirect
 
 
 
@@ -34,35 +36,36 @@ def your_home_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(data=request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(request, username= username, password= password)
+            user = authenticate(request, username=username, password=password)
+
             if user is not None:
                 login(request, user)
                 return redirect('your_dashboard')
             else:
-                messages.error(request, 'Invalid username or password')
-                return redirect('login')
+                messages.error(request, 'Invalid username or password.')
         else:
-            messages.error(request, f'invalid form submission,  error: {form.errors}')
-            return redirect('login')
-    else:
-        form = LoginForm()
-        return render(request, 'login.html', {'form': form})
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
 
-
+    form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
 
 
 def your_dashboard(request):
-    user_type = request.CustomUser.user_type
-    if user_type == 'clinic':
-        add_clinic = reverse('addclinic')
-        return render(request, 'clinic_dashboard.html')
-    elif user_type == 'patient':
-        updateprofile = reverse('update_profile')
-        return render(request, 'patient_dashboard.html')
+    if request.user.is_authenticated:
+        user_type = request.user.user_type
+        if user_type == 'clinic':
+            add_clinic = reverse('addclinic')
+            return render(request, 'clinic/clinic_dashboard.html')
+        elif user_type == 'patient':
+            updateprofile = reverse('update_profile')
+            appointments = Appointments.objects.filter(user_id=request.user).order_by('datetime')
+            return render(request, 'patient/patient_dashboard.html', {'appointments': appointments})
 
 
 
@@ -96,7 +99,52 @@ def update_profile(request):
     else:
         form = UpdateProfileForm()
 
-    return render(request, 'update_profile.html', {'form': form})
+    return render(request, 'patient/update_profile.html', {'form': form})
+
+
+def search_clinic(request):
+    if 'query' in request.GET:
+        form = ClinicSearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            clinics = Clinics.objects.filter(name__icontains=query)
+    else:
+        form = ClinicSearchForm()
+        clinics = Clinics.objects.all()
+    return render(request, 'search_clinic.html', {'form': form, 'clinics': clinics})
+
+
+def get_available_slots(request, clinic_id):
+    appointments = Appointments.objects.filter(clinic_id=clinic_id, status="Available").order_by('datetime')
+    return render(request, 'view_appointments.html', {'appointments': appointments})
+
+
+def make_appointment(request):
+    if request.method == 'POST':
+        appointment_id = request.POST.get('appointment_id')
+        appointment = get_object_or_404(Appointments, id=appointment_id, status="Available")
+        appointment.status = "Booked"
+        appointment.user = request.user
+        appointment.save()
+        return HttpResponseRedirect('/appointments/')
+    else:
+        form = AppointmentForm()
+        return render(request, 'patient/make_appointment.html', {'form': form})
+
+
+def cancel_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointments, id=appointment_id)
+    if request.user == appointment.user:
+        appointment.delete()
+        messages.success(request, 'Appointment cancelled successfully.')
+    else:
+        messages.error(request, 'You do not have permission to cancel this appointment.')
+    return redirect('view_appointments')
+
+
+def view_appointments(request):
+    appointments = Appointments.objects.filter(user_id=request.user).order_by('datetime')
+    return render(request, 'patient/view_appointments.html', {'appointments': appointments})
 
 
 
