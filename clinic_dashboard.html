@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+
+        header {
+            background-color: #3498db;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        footer {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Clinic Dashboard</h1>
+    </header>
+
+    <nav>
+        <a href="{% url 'addclinic' %}">Add Clinic</a>
+        <a href="{% url 'view_current_appointments' %}">View Current Appointments</a>
+        <a href="{% url 'cancel_appointment_by_clinic' %}">Cancel an Appointment</a>
+        <a href="{% url 'increase_appointment_capacity' %}">Increase Appointment Capacity</a>
+        <a href="{% url 'logout' %}">Log out</a>
+    </nav>
+
+    <section>
+        <p>Welcome to your clinic dashboard!</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Your Healthcare System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
