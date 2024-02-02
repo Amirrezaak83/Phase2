@@ -34,6 +34,10 @@ urlpatterns = [
     path('/get_available_slots/', get_available_slots, name='get_available_slots'),
     path('patient/cancel_appointment/<int:appointment_id>/', cancel_appointment, name='cancel_appointment'),
     path('patient/view_appointments/', view_appointments, name='view_appointments'),
+    path('clinic/add_clinic/', add_clinic, name='add_clinic'),
+    path('clinic/increase_capacity/', increase_appointment_capacity, name='increase_appointment_capacity'),
+    path('clinic/cancel_appointment_by_clinic/', cancel_appointment_by_clinic, name='cancel_appointment_by_clinic'),
+    path('clinic/view_current_appointments/', view_current_appointments, name='view_current_appointments'),
 
 ]
 
