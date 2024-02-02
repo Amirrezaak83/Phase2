@@ -49,3 +49,14 @@ class LoginForm(forms.Form):
 
         return cleaned_data
 
+
+class UpdateProfileForm(forms.ModelForm):
+    new_username = forms.CharField(required=False)
+    new_password = forms.CharField(widget=forms.PasswordInput, required=False)
+    confirm_password = forms.CharField(widget=forms.PasswordInput, required=False)
+
+    class Meta:
+        model = CustomUser
+        fields = ['new_username', 'new_password', 'confirm_password']
+
+
